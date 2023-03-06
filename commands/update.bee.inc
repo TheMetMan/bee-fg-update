@@ -152,6 +152,10 @@ function update_bee_callback()
             foreach ($data as $item) {
                 bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] . ' to ' . $item['latest_version']), 'info');
             }
+            // TODO Prompt to continue. but it does not show
+            // if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
+            //    return;
+            // }
             foreach ($data as $item) {
                 $folder = $_bee_backdrop_root . '/' . $item['project_type'] . 's/' . $item['name'];
                 if (is_dir($folder)) {
@@ -170,9 +174,13 @@ function update_bee_callback()
 
 }
 
+/*
+ * Delete a folder recursively
+ * checks for root folder and exits
+ * */
 function deleteDir($path)
 {
-    if (empty($path)) {
+    if (empty($path) or $path == '/') {
         return false;
     }
     return is_file($path) ?
