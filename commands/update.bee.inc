@@ -120,7 +120,7 @@ function update_db_bee_callback()
 }
 
 /**
- * Command callback: Show, and optionally apply, module updates ONLY.
+ * Command callback: Show, and apply, module and theme updates.
  *
  * 2023-03-06 a first attempt at getting this working
  */
@@ -130,8 +130,8 @@ function update_bee_callback()
 
     require_once $_bee_backdrop_root . '/core/includes/file.inc';
 
+    $themes = list_themes();
     $data = null;
-
     if ($available = update_get_available(TRUE)) {
         module_load_include('inc', 'update', 'update.compare');
         $data = update_calculate_project_data($available);
@@ -153,14 +153,14 @@ function update_bee_callback()
                 bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] . ' to ' . $item['latest_version']), 'info');
             }
             foreach ($data as $item) {
-                $folder = $_bee_backdrop_root . '/modules/' . $item['name'];
+                $folder = $_bee_backdrop_root . '/' . $item['project_type'] . 's/' . $item['name'];
                 if (is_dir($folder)) {
                     deleteDir($folder);
                 }
                 download_bee_callback(array('projects' => array($item['name']),), []);
                 echo '';
-                bee_message(bt('You will probably need to fix the permissions on the new modules'), 'info');
             }
+            bee_message(bt('You will probably need to fix the permissions on the new modules'), 'warning');
         } else {
             bee_message(bt('No Modules or Themes to Update'), 'info');
         }
