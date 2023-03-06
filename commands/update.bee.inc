@@ -147,18 +147,22 @@ function update_bee_callback()
                 }
             }
         }
-        bee_message(bt('These are the items being updated.....'), 'info');
-        foreach ($data as $item) {
-            bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] . ' to ' . $item['latest_version']), 'info');
-        }
-        foreach ($data as $item) {
-            $folder = $_bee_backdrop_root . '/modules/' . $item['name'];
-            if (is_dir($folder)) {
-                deleteDir($folder);
+        if ($data != null) {
+            bee_message(bt('These are the items being updated.....'), 'info');
+            foreach ($data as $item) {
+                bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] . ' to ' . $item['latest_version']), 'info');
             }
-            download_bee_callback(array('projects' => array($item['name']),), []);
-            echo '';
-            bee_message(bt('You will probably need to fix the permissions on the new modules'), 'info');
+            foreach ($data as $item) {
+                $folder = $_bee_backdrop_root . '/modules/' . $item['name'];
+                if (is_dir($folder)) {
+                    deleteDir($folder);
+                }
+                download_bee_callback(array('projects' => array($item['name']),), []);
+                echo '';
+                bee_message(bt('You will probably need to fix the permissions on the new modules'), 'info');
+            }
+        } else {
+            bee_message(bt('No Modules or Themes to Update'), 'info');
         }
     } else {
         bee_message(bt('No Modules or Themes to Update'), 'info');
