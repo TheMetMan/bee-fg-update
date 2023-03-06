@@ -178,11 +178,15 @@ function update_bee_callback()
  * Delete a folder recursively
  * checks for root folder and exits
  * */
-function deleteDir($path){
-    $files = array_diff(scandir($path), array('.','..'));
-    foreach($files as $file){
+function deleteDir($path)
+{
+    if (empty($path)) {
+        return false;
+    }
+    $files = array_diff(scandir($path), array('.', '..'));
+    foreach ($files as $file) {
         (is_dir("$path/$file")) ? deleteDir("$path/$file") : unlink("$path/$file");
-        }
+    }
     return rmdir($path);
 }
 
