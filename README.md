@@ -5,6 +5,9 @@
 Bee is a command line utility for Backdrop CMS. It includes commands that allow
 developers to interact with Backdrop sites, performing actions like:
 
+THIS IS NOT THE OFFICIAL REPO FOR BEE. 
+IT IS A FORK SO I CAN TRY AND CREATE THE `bee update` METHOD
+
 - Running cron
 - Clearing caches
 - Downloading and installing Backdrop
