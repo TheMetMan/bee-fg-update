@@ -1,6 +1,6 @@
-<img src="https://raw.githubusercontent.com/backdrop-contrib/bee/1.x-1.x/images/bee.png" align="right" width="150" height="157">
-
 # Bee
+
+<img src="https://raw.githubusercontent.com/backdrop-contrib/bee/1.x-1.x/images/bee.png" align="right" width="150" height="157">
 
 Bee is a command line utility for Backdrop CMS. It includes commands that allow
 developers to interact with Backdrop sites, performing actions like:
@@ -13,14 +13,16 @@ developers to interact with Backdrop sites, performing actions like:
 
 Please note that Bee is under active development and, as such, **breaking
 changes may occur**. Please see the release notes for a list of any major
-changes between versions. Also note that Bee is not (yet?) compatible with
-Microsoft Windows.
+changes between versions. Also note that Bee will not run natively on
+Microsoft Windows; it will run within WSL2 or other Linux based virtual
+machines.
 
 ## Installation
 
 - Download (or clone) Bee to your computer/server.  
   This will create a folder called `bee` with lots of files inside. Your home
-  directory is a good location for this folder.
+  directory is a good location for this folder. It is neither required nor
+  recommended to place this folder within the Backdrop web root.
 
 - Make sure `bee/bee.php` is executable.  
   It should be by default, but it doesn't hurt to double-check.
@@ -55,14 +57,18 @@ https://github.com/backdrop-contrib/bee/issues.
 
 ## Current Maintainers
 
-- [Peter Anderson](https://github.com/BWPanda)
 - [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons](https://www.systemhorizons.co.uk)
+- Collaboration and co-maintainers welcome!
 
 ## Credits
 
 - Originally written for Backdrop CMS by
   [Geoff St. Pierre](https://github.com/serundeputy)  
   (originally called 'Backdrop Console (a.k.a. `b`)').
+- Grateful thanks goes to previous maintainers and collaborators who have
+helped bring Bee to where it is today. See the 
+[list of contributors](https://github.com/backdrop-contrib/bee/graphs/contributors)
+for details.
 - Inspired by [Drush](https://github.com/drush-ops/drush).
 - [Bee icon](https://thenounproject.com/aomam/collection/bee-emoticons-line/?i=2257433)
   by AomAm from [the Noun Project](http://thenounproject.com).

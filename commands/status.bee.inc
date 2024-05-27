@@ -16,6 +16,7 @@ function status_bee_command() {
       'options' => array(
         'show-password' => array(
           'description' => bt('Show the database password.'),
+          'short' => 'p',
         ),
       ),
       'aliases' => array('st', 'info', 'core-status'),
@@ -49,7 +50,11 @@ function status_bee_callback($arguments, $options) {
       array('value' => BEE_VERSION),
     );
     $rows[] = array(
-      array('value' => bt('Root directory')),
+      array('value' => bt('Bee root directory')),
+      array('value' => substr(__DIR__, 0, strlen(__DIR__) - 9)),
+    );
+    $rows[] = array(
+      array('value' => bt('Site root directory')),
       array('value' => $_bee_backdrop_root),
     );
 
@@ -81,9 +86,10 @@ function status_bee_callback($arguments, $options) {
           array('value' => bt('Database username')),
           array('value' => rawurldecode($info['username'])),
         );
+        $status_show_password = isset($options['show-password']);
         $rows[] = array(
           array('value' => bt('Database password')),
-          array('value' => isset($options['show-password']) ? rawurldecode($info['password']) : '**********'),
+          array('value' => $status_show_password ? rawurldecode($info['password']) : '**********'),
         );
         $rows[] = array(
           array('value' => bt('Database host')),
@@ -91,43 +97,54 @@ function status_bee_callback($arguments, $options) {
         );
         $rows[] = array(
           array('value' => bt('Database port')),
-          array('value' => $info['port']),
+          array('value' => array_key_exists('port', $info) ? $info['port'] : NULL),
         );
 
         // States directly from database, as state_get() requires a higher
         // bootstrap level with caching and locking.
-        $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
-        foreach ($states as $name => $serialized) {
-          switch ($name) {
-            case 'cron_last':
-              $rows[] = array(
-                array('value' => bt('Cron last run')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+        try {
+          $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
+          foreach ($states as $name => $serialized) {
+            switch ($name) {
+              case 'cron_last':
+                $rows[] = array(
+                  array('value' => bt('Cron last run')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
-            case 'install_time':
-              $rows[] = array(
-                array('value' => bt('Install time')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+              case 'install_time':
+                $rows[] = array(
+                  array('value' => bt('Install time')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
-            case 'maintenance_mode':
-              $rows[] = array(
-                array('value' => bt('Maintenance mode')),
-                array('value' => (unserialize($serialized)) ? 'on' : 'off'),
-              );
-              break;
+              case 'maintenance_mode':
+                $rows[] = array(
+                  array('value' => bt('Maintenance mode')),
+                  array('value' => (unserialize($serialized)) ? 'on' : 'off'),
+                );
+                break;
 
-            case 'update_last_check':
-              $rows[] = array(
-                array('value' => bt('Update last check')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+              case 'update_last_check':
+                $rows[] = array(
+                  array('value' => bt('Update last check')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
+            }
           }
+        }
+        // If the database query fails then add a simple row about database
+        // status and a warning message.
+        catch (Exception $e) {
+          $rows[] = array(
+            array('value' => bt('Database status')),
+            array('value' => bt('Empty')),
+          );
+          bee_message(bt('The database is currently empty.'), 'warning');
         }
       }
     }
@@ -141,16 +158,38 @@ function status_bee_callback($arguments, $options) {
       array('value' => bt('Drupal compatibility')),
       array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
     );
-    if ($config_directories['active'] && is_dir($config_directories['active'])) {
+    // Active config storage.
+    $config_active_class = isset($settings['config_active_class']) ? $settings['config_active_class'] : 'ConfigFileStorage';
+    $config_active_storage = '';
+    if ($config_active_class == 'ConfigDatabaseStorage') {
+      $config_active_storage = 'Database';
+    }
+    else {
+      if ($config_directories['active'] && is_dir($config_directories['active'])) {
+        $config_active_storage = realpath($config_directories['active']);
+      }
+    }
+    if ($config_active_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir active')),
-        array('value' => realpath($config_directories['active'])),
+        array('value' => bt('Config storage active')),
+        array('value' => $config_active_storage),
       );
     }
-    if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+    // Staging config storage.
+    $config_staging_class = isset($settings['config_staging_class']) ? $settings['config_staging_class'] : 'ConfigFileStorage';
+    $config_staging_storage = '';
+    if ($config_staging_class == 'ConfigDatabaseStorage') {
+      $config_staging_storage = 'Database';
+    }
+    else {
+      if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+        $config_staging_storage = realpath($config_directories['staging']);
+      }
+    }
+    if ($config_staging_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir staging')),
-        array('value' => realpath($config_directories['staging'])),
+        array('value' => bt('Config storage staging')),
+        array('value' => $config_staging_storage),
       );
     }
 

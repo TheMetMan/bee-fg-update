@@ -5,7 +5,8 @@ API Information
 --------------------
 This hook can be invoked to provide additional commands to Bee. It should reside
 in a `bee` command file (*HOOK.bee.inc*) which should be placed in a
-custom/contrib module, or in the `.bee` folder in the user's HOME directory.
+custom/contrib module, in the `.bee` folder in the user's HOME directory or in
+the `.bee` folder in the parent folder of the Backdrop root directory.
 
 Implementations of this hook should return an associative array of command
 descriptors, where the keys are unique command names and the values are
@@ -34,6 +35,11 @@ associative arrays, containing:
   - **value**: (optional) A translated word describing the value a user needs to
     provide for this option. This will be displayed to the user in uppercase
     after the option name.
+  - **short**: (optional) A short code for an option that does not require a
+    value. These will be prepended with '-' when displayed to the user. Any
+    short options are converted to the full option before being passed to the
+    command callback so you only need to check for the full option in your
+    function.
 - **aliases**: (optional) An array of alternate command names.
 - **bootstrap**: (optional) The bootstrap level required to run this command.
   See *includes/globals.inc* for possible values.
@@ -60,6 +66,7 @@ function poetry_bee_command() {
         ),
         'short' => array(
           'description' => bt('Display a shorter poem.'),
+          'short' => 's',
         ),
       ),
       'aliases' => array('p'),

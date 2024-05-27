@@ -206,7 +206,7 @@ function bee_command_file_paths() {
   static $search_paths = array();
 
   if (empty($search_paths)) {
-    global $_bee_backdrop_installed;
+    global $_bee_backdrop_installed, $_bee_backdrop_root;
 
     // Add `bee/commands` directory.
     $search_paths[] = dirname(__DIR__) . '/commands';
@@ -215,6 +215,12 @@ function bee_command_file_paths() {
     $home = getenv('HOME') . '/.bee';
     if (is_dir($home)) {
       $search_paths[] = $home;
+    }
+
+    // Add `.bee` folder in the folder above the Backdrop root.
+    $parent = dirname($_bee_backdrop_root) . '/.bee';
+    if (is_dir($parent)) {
+      $search_paths[] = $parent;
     }
 
     // Add enabled modules' directories.
@@ -282,7 +288,19 @@ function bee_validate_command(array $descriptor) {
   if (isset($descriptor['options'])) {
     // Remove any provided options that aren't used by the command.
     foreach ($_bee_options as $name => $value) {
+      // Check for long form command options.
       if (!isset($descriptor['options'][$name])) {
+        // Check for short form command options.
+        foreach ($descriptor['options'] as $command_option_key => $command_option) {
+          // Check if short option exists and it matches the provided option.
+          if (isset($command_option['short']) && $command_option['short'] == $name) {
+            // If it does, set the long form command option.
+            $_bee_options[$command_option_key] = TRUE;
+          }
+        }
+        // Unset the option if it doesn't match long form options now that all
+        // short form options have been converted to their long form
+        // equivalent.
         unset($_bee_options[$name]);
       }
     }

@@ -23,32 +23,7 @@ function bee_print_messages() {
       continue;
     }
 
-    switch ($type) {
-      case 'success':
-        $symbol = '[✔]';
-        $color = 'green';
-        break;
-
-      case 'warning':
-        $symbol = '[!]';
-        $color = 'yellow';
-        break;
-
-      case 'error':
-        $symbol = '[✘]';
-        $color = 'red';
-        break;
-
-      case 'log':
-        $symbol = '[-]';
-        $color = 'magenta';
-        break;
-
-      case 'info':
-      default:
-        $symbol = '[i]';
-        $color = 'blue';
-    }
+    list($symbol, $color) = bee_message_type_info($type);
 
     // Prepare `$rows` array for table output.
     foreach ($type_messages as $message) {
@@ -71,6 +46,46 @@ function bee_print_messages() {
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
   ));
+}
+
+/**
+ * Return the symbol and color for a bee message type.
+ *
+ * @param string $type
+ *   A string that identifies the type of message.
+ *
+ * @return array
+ *   An array of two elements, a textual symbol and a string identifying its
+ *   color.
+ */
+function bee_message_type_info($type) {
+  switch ($type) {
+    case 'success':
+      $symbol = '[✔]';
+      $color = 'green';
+      break;
+
+    case 'warning':
+      $symbol = '[!]';
+      $color = 'yellow';
+      break;
+
+    case 'error':
+      $symbol = '[✘]';
+      $color = 'red';
+      break;
+
+    case 'log':
+      $symbol = '[-]';
+      $color = 'magenta';
+      break;
+
+    case 'info':
+    default:
+      $symbol = '[i]';
+      $color = 'blue';
+  }
+  return array($symbol, $color);
 }
 
 /**
@@ -297,8 +312,11 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   $table_width += mb_strlen((string) $delimiter_right);
   $table_width += (count($widths) - 1) * mb_strlen((string) $delimiter);
 
-  // Adjust the width of the widest column to fit in the terminal.
-  $terminal_width = exec('tput cols');
+  // Adjust the width of the widest column to fit in the terminal. If a command
+  // outputting a table is run in a non-interactive shell (e.g. as part of an
+  // SSH command) then 'tput cols' on its own will create an error. This
+  // provides an alternative if 'tput cols' create an error.
+  $terminal_width = exec('if tput cols &>/dev/null; then  echo $(tput cols); else $(echo $COLUMNS); fi');
   if ($terminal_width && $table_width > $terminal_width) {
     $diff = $table_width - $terminal_width;
     $widths[$widest_column] -= $diff;
